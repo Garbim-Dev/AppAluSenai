@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Turno {
+  MANHA
+  TARDE
+  NOITE
+  INTEGRAL
+}
+
+enum Sexo {
+  MASCULINO
+  FEMININO
+  INTERSEXO
+  PREFIRO_NAO_INFORMAR
+}
+
+enum EstadoCivil {
+  CASADO
+  SOLTEIRO
+  DIVORCIADO
+  VIUVO
+  UNIAO_ESTAVEL
+  SEPARADO_JUDICIALMENTE
+}
+
+enum Escolaridade {
+  ANALFABETO
+  FUNDAMENTAL_INCOMPLETO
+  FUNDAMENTAL_COMPLETO
+  MEDIO_INCOMPLETO
+  MEDIO_COMPLETO
+  SUPERIOR_INCOMPLETO
+  SUPERIOR_COMPLETO
+  POS_GRADUACAO
+  MESTRADO
+  DOUTORADO
+}
+
+enum TipoEscola {
+  PUBLICA_MUNICIPAL
+  PUBLICA_ESTADUAL
+  PUBLICA_FEDERAL
+  PRIVADA_REGULAR
+  PRIVADA_FILANTROPICA
+}
+
+enum Etnia {
+  AMARELA
+  BRANCA
+  INDIGENA
+  NEGRA
+  PARDA
+  NAO_DECLARADA
+}
+
+enum NecessidadeEspecial {
+  ALTAS_HABILIDADES
+  AUDITIVA
+  FALA
+  FISICA
+  INTELECTUAL
+  MULTIPLAS
+  VISUAL
+  REABILITADO_BR
+  NAO_POSSUI
+  OUTRAS
+}
+
+enum SituacaoOcupacional {
+  AUTONOMO
+  EMPREGADO
+  PROFISSIONAL_LIBERAL
+  DESEMPREGADO
+  EMPREGADOR
+  APOSENTADO
+  PRIMEIRO_EMPREGO
+}
+
+enum StatusCadastro {
+  PENDENTE
+  APROVADO
+  EM_REVISAO
+}
+
+model Aluno {
+  id                    Int                 @id @default(autoincrement())
+  ra                    String?             @unique @db.VarChar(20)
+  curso                 String              @db.VarChar(100)
+  turno                 Turno
+  nomeCompleto          String              @map("nome_completo") @db.VarChar(150)
+  nomeSocial            String?             @map("nome_social") @db.VarChar(150)
+  rgNumero              String              @map("rg_numero") @db.VarChar(20)
+  rgDataEmissao         DateTime?           @map("rg_data_emissao") @db.Date
+  cpf                   String              @unique @db.VarChar(11)
+  dataNascimento        DateTime            @map("data_nascimento") @db.Date
+  cnhNumero             String?             @map("cnh_numero") @db.VarChar(20)
+  cnhTipo               String?             @map("cnh_tipo") @db.VarChar(5)
+  naturalidade          String              @db.VarChar(100)
+  nacionalidade         String              @default("BRASILEIRA") @db.VarChar(50)
+  sexo                  Sexo
+  estadoCivil           EstadoCivil         @map("estado_civil")
+  
+  // Filiação
+  nomeMae               String              @map("nome_mae") @db.VarChar(150)
+  maeEstadoNatal        String?             @map("mae_estado_natal") @db.Char(2)
+  maeNaturalidade       String?             @map("mae_naturalidade") @db.VarChar(100)
+  maeDataNascimento     DateTime?           @map("mae_data_nascimento") @db.Date
+  nomePai               String?             @map("nome_pai") @db.VarChar(150)
+  
+  // Escolaridade e Perfil
+  escolaridade          Escolaridade
+  tipoEscolaOrigem      TipoEscola          @map("tipo_escola_origem")
+  etnia                 Etnia
+  necessidadeEspecial   NecessidadeEspecial @default(NAO_POSSUI) @map("necessidade_especial")
+  situacaoOcupacional   SituacaoOcupacional @map("situacao_ocupacional")
+  
+  // Endereço e Contatos
+  email                 String              @db.VarChar(150)
+  cep                   String              @db.VarChar(8)
+  enderecoLogradouro    String              @map("endereco_logradouro") @db.VarChar(200)
+  bairro                String              @db.VarChar(100)
+  municipio             String              @db.VarChar(100)
+  uf                    String              @db.Char(2)
+  telefoneCelular       String              @map("telefone_celular") @db.VarChar(11)
+  telefoneResidencial   String?             @map("telefone_residencial") @db.VarChar(10)
+  telefoneRecados       String?             @map("telefone_recados") @db.VarChar(11)
+  
+  // Controle da Secretaria e Auditoria
+  termoLgpdAceito       Boolean             @default(false) @map("termo_lgpd_aceito")
+  statusCadastro        StatusCadastro      @default(PENDENTE) @map("status_cadastro")
+  observacoesSecretaria String?             @map("observacoes_secretaria") @db.Text
+  createdAt             DateTime            @default(now()) @map("created_at")
+  updatedAt             DateTime            @updatedAt @map("updated_at")
+
+  @@map("alunos")
+}
